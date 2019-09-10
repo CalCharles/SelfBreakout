@@ -2,10 +2,51 @@
 import sys
 sys.path.insert(0, "/home/calcharles/research/contingency-options/")
 import numpy as np
-from SelfBreakout.breakout_objects import *
+# from SelfBreakout.breakout_objects import *
+from breakout_objects import *
 import imageio as imio
 import os, copy
-from Environments.environment_specification import RawEnvironment
+# from Environments.environment_specification import RawEnvironment
+
+class RawEnvironment():
+    def __init__(self):
+        self.num_actions = None # this must be defined
+        self.itr = 0 # this is used for saving, and is set externally
+        self.save_path = "" # save dir also is set externally
+        self.episode_rewards = deque(maxlen=10)
+        self.all_dir = ""
+
+    def step(self, action):
+        '''
+        self.save_path is the path to which to save files, and self.itr is the iteration number to be used for saving.
+        The format of saving is: folders contain the raw state, names are numbers, contain 2000 raw states each
+        obj_dumps contains the factored state
+        empty string for save_path means no saving state
+        Takes in an action and returns:
+            next raw_state (image or observation)
+            next factor_state (dictionary of name of object to tuple of object bounding box and object property)
+            done flag: if an episode ends, done is True
+        '''
+        pass
+
+    def getState(self):
+        '''
+        Takes in an action and returns:
+            current raw_state (dictionary of name of object to raw state)
+            current factor_state (dictionary of name of object to tuple of object bounding box and object property)
+        '''
+        pass
+
+    def set_save(self, itr, save_dir, recycle, all_dir=""):
+        self.save_path=save_dir
+        self.itr = itr
+        self.recycle = recycle
+        self.all_dir = all_dir
+        try:
+            os.makedirs(save_dir)
+        except OSError:
+            pass
+
 
 class Screen(RawEnvironment):
     def __init__(self, frameskip = 1):
@@ -116,7 +157,7 @@ class Screen(RawEnvironment):
         self.itr += 1
         return self.frame, extracted_state, done
 
-    def write_objects(self, object_dumps, save_path):
+    def write_objects(self, object_dumps, save_path): # TODO: put into parent class
         if self.recycle > 0:
             state_path = os.path.join(save_path, str((self.itr % self.recycle)//2000))
             count = self.itr % self.recycle
